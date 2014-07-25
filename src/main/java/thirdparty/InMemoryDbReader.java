@@ -26,8 +26,10 @@ public class InMemoryDbReader implements DbReader {
     @Override
     public List<String[]> get(String key) {
         List<String[]> result = new ArrayList<String[]>();
-        for (String[] data : DATA.get(key)) {
-            insertAtRandomPosition(result, copyOf(data));
+        if (DATA.containsKey(key)) {
+            for (String[] data : DATA.get(key)) {
+                insertAtRandomPosition(result, copyOf(data));
+            }
         }
         return result;
     }
