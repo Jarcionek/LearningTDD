@@ -38,6 +38,11 @@
             <version>1.9.5</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.shazam</groupId>
+            <artifactId>shazamcrest</artifactId>
+            <version>0.7</version>
+        </dependency>
     </dependencies>
 
 </project>
