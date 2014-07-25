@@ -1,9 +1,6 @@
 package main;
 
-import org.hamcrest.Matchers;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
@@ -11,12 +8,12 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
-public class NewsFeedReaderIntegrationTest {
+public class ThirdPartyNewsFeedReaderIntegrationTest {
 
     private UserId userId1 = new UserId(1001);
     private UserId userId2 = new UserId(1002);
 
-    private NewsFeedReader newsFeedReader = new NewsFeedReader();
+    private ThirdPartyNewsFeedReader newsFeedReader = new ThirdPartyNewsFeedReader();
 
     @SuppressWarnings("unchecked")
     @Test
