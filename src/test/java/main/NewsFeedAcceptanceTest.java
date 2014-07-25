@@ -11,23 +11,27 @@ import static org.hamcrest.CoreMatchers.is;
 
 public class NewsFeedAcceptanceTest {
 
-    private static final int TIME_1 = 15;
-    private static final int TIME_2 = 30;
-
     private final UserId userId = new UserId(12345);
 
     private final Application application = Config.getApplication();
 
     @Test
     public void returnsAllPostedMessages() {
-        application.post(userId, new Message(TIME_1, "msg1"));
-        application.post(userId, new Message(TIME_2, "msg2"));
+        Message msg1 = new Message(15, "msg1");
+        Message msg2 = new Message(30, "msg2");
+        Message msg3 = new Message(45, "msg3");
+        Message msg4 = new Message(60, "msg4");
+        Message msg5 = new Message(75, "msg5");
+
+        application.post(userId, msg1);
+        application.post(userId, msg2);
+        application.post(userId, msg3);
+        application.post(userId, msg4);
+        application.post(userId, msg5);
 
         List<Message> newsFeed = application.getNewsFeed(userId);
 
-        assertThat(newsFeed, is(sameBeanAs(Arrays.asList(
-                new Message(TIME_1, "msg1"),
-                new Message(TIME_2, "msg2")))));
+        assertThat(newsFeed, is(sameBeanAs(Arrays.asList(msg1, msg2, msg3, msg4, msg5))));
     }
 
 }
