@@ -1,5 +1,6 @@
 package main;
 
+import java.util.Arrays;
 import java.util.List;
 
 public class Application {
@@ -29,4 +30,7 @@ public class Application {
         return reducedNewsFeed;
     }
 
+    public List<Message> getNewsFeed(UserId userId, int pageNumber, int pageSize) {
+        return Arrays.asList(new Message(4, "msg+4"));
+    }
 }
