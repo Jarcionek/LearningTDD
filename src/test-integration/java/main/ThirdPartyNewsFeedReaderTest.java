@@ -8,7 +8,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
-public class ThirdPartyNewsFeedReaderIntegrationTest {
+public class ThirdPartyNewsFeedReaderTest {
 
     private UserId userId1 = new UserId(1001);
     private UserId userId2 = new UserId(1002);

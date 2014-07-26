@@ -9,7 +9,7 @@ import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
 import static org.hamcrest.CoreMatchers.is;
 
-public class NewsFeedAcceptanceTest {
+public class NewsFeedTest {
 
     private final UserId userId = new UserId(12345);
 
