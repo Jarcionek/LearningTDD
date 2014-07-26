@@ -2,7 +2,7 @@ package main;
 
 import java.util.List;
 
-public class Application {
+public class Application implements NewsFeedEndpoints {
 
     private final NewsFeedReader newsFeedReader;
     private final NewsFeedReducer newsFeedReducer;
@@ -14,14 +14,17 @@ public class Application {
         this.newsFeedPaginator = newsFeedPaginator;
     }
 
+    @Override
     public void post(UserId userId, Message msg) {
         newsFeedReader.post(userId, msg);
     }
 
+    @Override
     public List<Message> getNewsFeed(UserId userId) {
         return newsFeedReader.getNewsFeed(userId);
     }
 
+    @Override
     @SuppressWarnings("UnnecessaryLocalVariable")
     public List<Message> getNewsFeed(UserId userId, int size) {
         List<Message> entireNewsFeed = newsFeedReader.getNewsFeed(userId);
@@ -31,6 +34,7 @@ public class Application {
         return reducedNewsFeed;
     }
 
+    @Override
     @SuppressWarnings("UnnecessaryLocalVariable")
     public List<Message> getNewsFeed(UserId userId, int pageNumber, int pageSize) {
         List<Message> entireNewsFeed = newsFeedReader.getNewsFeed(userId);

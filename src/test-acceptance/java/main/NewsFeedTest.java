@@ -11,7 +11,7 @@ import static org.hamcrest.CoreMatchers.is;
 
 public class NewsFeedTest {
 
-    private final Application application = Config.getApplication();
+    private final NewsFeedEndpoints endpoint = Config.getNewsFeedEndpoints();
 
     @Test
     public void returnsAllPostedMessages() {
@@ -23,13 +23,13 @@ public class NewsFeedTest {
         Message msg4 = new Message(60, "msg4");
         Message msg5 = new Message(75, "msg5");
 
-        application.post(userId, msg1);
-        application.post(userId, msg2);
-        application.post(userId, msg3);
-        application.post(userId, msg4);
-        application.post(userId, msg5);
+        endpoint.post(userId, msg1);
+        endpoint.post(userId, msg2);
+        endpoint.post(userId, msg3);
+        endpoint.post(userId, msg4);
+        endpoint.post(userId, msg5);
 
-        List<Message> newsFeed = application.getNewsFeed(userId);
+        List<Message> newsFeed = endpoint.getNewsFeed(userId);
 
         assertThat(newsFeed, is(sameBeanAs(Arrays.asList(msg1, msg2, msg3, msg4, msg5))));
     }
@@ -46,15 +46,15 @@ public class NewsFeedTest {
         Message msg6 = new Message(60, "msg-6");
         Message msg7 = new Message(70, "msg-7");
 
-        application.post(userId, msg1);
-        application.post(userId, msg2);
-        application.post(userId, msg3);
-        application.post(userId, msg4);
-        application.post(userId, msg5);
-        application.post(userId, msg6);
-        application.post(userId, msg7);
+        endpoint.post(userId, msg1);
+        endpoint.post(userId, msg2);
+        endpoint.post(userId, msg3);
+        endpoint.post(userId, msg4);
+        endpoint.post(userId, msg5);
+        endpoint.post(userId, msg6);
+        endpoint.post(userId, msg7);
 
-        List<Message> newsFeed = application.getNewsFeed(userId, 5);
+        List<Message> newsFeed = endpoint.getNewsFeed(userId, 5);
 
         assertThat(newsFeed, is(sameBeanAs(Arrays.asList(msg3, msg4, msg5, msg6, msg7))));
     }
@@ -72,14 +72,14 @@ public class NewsFeedTest {
         Message msg5 = new Message(5, "msg+5");
         Message msg6 = new Message(6, "msg+6");
 
-        application.post(userId, msg1);
-        application.post(userId, msg2);
-        application.post(userId, msg3);
-        application.post(userId, msg4);
-        application.post(userId, msg5);
-        application.post(userId, msg6);
+        endpoint.post(userId, msg1);
+        endpoint.post(userId, msg2);
+        endpoint.post(userId, msg3);
+        endpoint.post(userId, msg4);
+        endpoint.post(userId, msg5);
+        endpoint.post(userId, msg6);
 
-        List<Message> newsFeed = application.getNewsFeed(userId, pageNumber, pageSize);
+        List<Message> newsFeed = endpoint.getNewsFeed(userId, pageNumber, pageSize);
 
         assertThat(newsFeed, is(sameBeanAs(Arrays.asList(msg4))));
     }
