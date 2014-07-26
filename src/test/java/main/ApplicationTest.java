@@ -52,8 +52,8 @@ public class ApplicationTest {
 
     @Test
     public void delegatesSizedGetQuery() {
-        List<Message> expectedNewsFeed = Arrays.asList(new Message(2, "2"));
-        List<Message> entireNewFeed = Arrays.asList(new Message(1, "1"), new Message(2, "2"));
+        List<Message> expectedNewsFeed = Arrays.asList(msg(2));
+        List<Message> entireNewFeed = Arrays.asList(msg(1), msg(2));
 
         when(newsFeedReader.getNewsFeed(USER_ID)).thenReturn(entireNewFeed);
         when(newsFeedReducer.reduce(entireNewFeed, 1)).thenReturn(expectedNewsFeed);
@@ -61,6 +61,11 @@ public class ApplicationTest {
         List<Message> actualNewsFeed = application.getNewsFeed(USER_ID, 1);
 
         assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+
+    private static Message msg(int time) {
+        return new Message(time, "" + time);
     }
 
 }
