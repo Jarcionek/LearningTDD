@@ -23,12 +23,13 @@ public class ApplicationTest {
     private static final Message MESSAGE = new Message(10, "any message");
 
     @Mock private NewsFeedReader newsFeedReader;
+    @Mock private NewsFeedReducer newsFeedReducer;
 
     private Application application;
 
     @Before
     public void setup() {
-        application = new Application(newsFeedReader);
+        application = new Application(newsFeedReader, newsFeedReducer);
     }
 
     @Test
@@ -47,6 +48,19 @@ public class ApplicationTest {
         application.post(USER_ID, MESSAGE);
 
         verify(newsFeedReader, times(1)).post(USER_ID, MESSAGE);
+    }
+
+    @Test
+    public void delegatesSizedGetQuery() {
+        List<Message> expectedNewsFeed = Arrays.asList(new Message(2, "2"));
+        List<Message> entireNewFeed = Arrays.asList(new Message(1, "1"), new Message(2, "2"));
+
+        when(newsFeedReader.getNewsFeed(USER_ID)).thenReturn(entireNewFeed);
+        when(newsFeedReducer.reduce(entireNewFeed, 1)).thenReturn(expectedNewsFeed);
+
+        List<Message> actualNewsFeed = application.getNewsFeed(USER_ID, 1);
+
+        assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
     }
 
 }
