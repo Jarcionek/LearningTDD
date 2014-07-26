@@ -1,0 +1,21 @@
+- don't write production code unless there is a failing test
+	- refactoring is fine, but shouldn't be done if there is no tests (e.g. legacy code)
+- write minimal code to satisfy the test
+
+- write minimal amount of tests which are necessary to fail
+
+	- if you write a new test and it is passing, it means that it's not needed
+
+	- if two tests are always failing together or always passing together, one of them is probably redudant
+
+- always see the test fail and for the right reason
+
+	- when writing tests for existing code, never change test to see it fail, break implementation instead
+
+	- consider removing all implementation code and keep adding it back piece by piece, only what is needed for the test to pass
+
+
+
+
+
+https://twitter.com/theNeomatrix369/status/411849580133634050/photo/1
