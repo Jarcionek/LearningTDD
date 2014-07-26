@@ -8,26 +8,26 @@ import java.util.Random;
 
 public class InMemoryDbReader implements DbReader {
 
-    private static final Map<String, List<String[]>> DATA = new HashMap<String, List<String[]>>();
+    private static final Map<String, List<String[]>> data = new HashMap<String, List<String[]>>();
 
     @Override
     public void put(String key, String... data) {
-        if (!DATA.containsKey(key)) {
-            DATA.put(key, new ArrayList<String[]>());
+        if (!InMemoryDbReader.data.containsKey(key)) {
+            InMemoryDbReader.data.put(key, new ArrayList<String[]>());
         }
-        DATA.get(key).add(data);
+        InMemoryDbReader.data.get(key).add(data);
     }
 
     @Override
     public void delete(String key) {
-        DATA.remove(key);
+        data.remove(key);
     }
 
     @Override
     public List<String[]> get(String key) {
         List<String[]> result = new ArrayList<String[]>();
-        if (DATA.containsKey(key)) {
-            for (String[] data : DATA.get(key)) {
+        if (data.containsKey(key)) {
+            for (String[] data : InMemoryDbReader.data.get(key)) {
                 insertAtRandomPosition(result, copyOf(data));
             }
         }
