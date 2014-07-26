@@ -24,12 +24,13 @@ public class ApplicationTest {
 
     @Mock private NewsFeedReader newsFeedReader;
     @Mock private NewsFeedReducer newsFeedReducer;
+    @Mock private NewsFeedPaginator newsFeedPaginator;
 
     private Application application;
 
     @Before
     public void setup() {
-        application = new Application(newsFeedReader, newsFeedReducer);
+        application = new Application(newsFeedReader, newsFeedReducer, newsFeedPaginator);
     }
 
     @Test
@@ -53,12 +54,25 @@ public class ApplicationTest {
     @Test
     public void delegatesSizedGetQuery() {
         List<Message> expectedNewsFeed = Arrays.asList(msg(2));
-        List<Message> entireNewFeed = Arrays.asList(msg(1), msg(2));
+        List<Message> entireNewsFeed = Arrays.asList(msg(1), msg(2));
 
-        when(newsFeedReader.getNewsFeed(USER_ID)).thenReturn(entireNewFeed);
-        when(newsFeedReducer.reduce(entireNewFeed, 1)).thenReturn(expectedNewsFeed);
+        when(newsFeedReader.getNewsFeed(USER_ID)).thenReturn(entireNewsFeed);
+        when(newsFeedReducer.reduce(entireNewsFeed, 1)).thenReturn(expectedNewsFeed);
 
         List<Message> actualNewsFeed = application.getNewsFeed(USER_ID, 1);
+
+        assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+    @Test
+    public void delegatesPaginatedSizedGetQuery() {
+        List<Message> expectedNewsFeed = Arrays.asList(msg(2), msg(3));
+        List<Message> entireNewsFeed = Arrays.asList(msg(1), msg(2), msg(3), msg(4), msg(5));
+
+        when(newsFeedReader.getNewsFeed(USER_ID)).thenReturn(entireNewsFeed);
+        when(newsFeedPaginator.paginate(entireNewsFeed, 1, 2)).thenReturn(expectedNewsFeed);
+
+        List<Message> actualNewsFeed = application.getNewsFeed(USER_ID, 1, 2);
 
         assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
     }

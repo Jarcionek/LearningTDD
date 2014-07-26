@@ -1,16 +1,17 @@
 package main;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class Application {
 
     private final NewsFeedReader newsFeedReader;
     private final NewsFeedReducer newsFeedReducer;
+    private final NewsFeedPaginator newsFeedPaginator;
 
-    public Application(NewsFeedReader newsFeedReader, NewsFeedReducer newsFeedReducer) {
+    public Application(NewsFeedReader newsFeedReader, NewsFeedReducer newsFeedReducer, NewsFeedPaginator newsFeedPaginator) {
         this.newsFeedReader = newsFeedReader;
         this.newsFeedReducer = newsFeedReducer;
+        this.newsFeedPaginator = newsFeedPaginator;
     }
 
     public void post(UserId userId, Message msg) {
@@ -30,7 +31,13 @@ public class Application {
         return reducedNewsFeed;
     }
 
+    @SuppressWarnings("UnnecessaryLocalVariable")
     public List<Message> getNewsFeed(UserId userId, int pageNumber, int pageSize) {
-        return Arrays.asList(new Message(4, "msg+4"));
+        List<Message> entireNewsFeed = newsFeedReader.getNewsFeed(userId);
+
+        List<Message> paginatedNewsFeed = newsFeedPaginator.paginate(entireNewsFeed, pageNumber, pageSize);
+
+        return paginatedNewsFeed;
     }
+
 }
