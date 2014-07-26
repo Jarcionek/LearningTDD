@@ -11,12 +11,12 @@ import static org.hamcrest.CoreMatchers.is;
 
 public class NewsFeedTest {
 
-    private final UserId userId = new UserId(12345);
-
     private final Application application = Config.getApplication();
 
     @Test
     public void returnsAllPostedMessages() {
+        final UserId userId = new UserId(5001);
+
         Message msg1 = new Message(15, "msg1");
         Message msg2 = new Message(30, "msg2");
         Message msg3 = new Message(45, "msg3");
@@ -36,6 +36,8 @@ public class NewsFeedTest {
 
     @Test
     public void returnsLastFivePostedMessages() {
+        final UserId userId = new UserId(5002);
+
         Message msg1 = new Message(10, "msg1");
         Message msg2 = new Message(20, "msg2");
         Message msg3 = new Message(30, "msg3");
