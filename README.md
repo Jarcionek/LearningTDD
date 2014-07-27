@@ -12,12 +12,12 @@ For the simplicity of the task, we won't be creating RESTful endpoints but will 
 
 ### Task 1 - retrieve news feed
 
-//TODO just retrieve all news feed in sorted by timestamp order
+The simplest fully functional system is a one that allows to retrieve the entire news feed (sorted by timestamp) for the given user and allows to post messages to the given user's news feed. Implement these two methods.
 
 ### Task 2 - add max size
 
-//TODO add maximum number of items to retrieve (most recent items)
+Over time, users' news feed becomes much larger than displayed by the mobile application. Statistics have also shown that users almost never scroll down to the oldest messages. Create another method that allows to retrieve only last given number of recent messages for the given user.
 
 ### Task 3 - add pagination
 
-//TODO add page size and page number
+When users scroll down the news feed, at some point it is necessary to request more messages from the news feed, however to existing methods will return also those messages that are already cached by the mobile application, hence wasting bandwith and memory. We should add another method that will return a page of messages, given the page number and page size. For example, if entire news feed is [A, B, C, D, E, F, G], with G being the most recent message, the query of page 1 and page size 2 should return page [D, E].
