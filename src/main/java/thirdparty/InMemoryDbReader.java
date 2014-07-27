@@ -8,7 +8,7 @@ import java.util.Random;
 
 public class InMemoryDbReader implements DbReader {
 
-    private static final Map<String, List<String[]>> data = new HashMap<String, List<String[]>>();
+    private static Map<String, List<String[]>> data = new HashMap<String, List<String[]>>();
 
     @Override
     public void put(String key, String... data) {
@@ -33,6 +33,15 @@ public class InMemoryDbReader implements DbReader {
         }
         return result;
     }
+
+    void setData(Map<String, List<String[]>> data) {
+        InMemoryDbReader.data = data;
+    }
+
+    Map<String, List<String[]>> getData() {
+        return data;
+    }
+
 
     private static void insertAtRandomPosition(List<String[]> list, String[] object) {
         int position = new Random().nextInt(list.size() + 1);
