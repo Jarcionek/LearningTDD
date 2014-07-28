@@ -506,7 +506,381 @@ NewsFeedAcceptanceTest.java
 
 --------x---------
 
+Test code
+---------
 Rename NewsFeedReaderIntegrationTest to ThirdPartyNewsFeedReaderIntegrationTest
 
+
+Implementation code
+-------------------
+
+ThirdPartyNewsFeedReader.java
+
+package main;
+
+import thirdparty.DbReader;
+import thirdparty.InMemoryDbReader;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ThirdPartyNewsFeedReader implements NewsFeedReader {
+
+    private final DbReader dbReader = new InMemoryDbReader();
+
+    @Override
+    public List<Message> getNewsFeed(UserId userId) {
+        List<String[]> entriesList = dbReader.get("" + userId.getUserId());
+
+        List<Message> result = new ArrayList<Message>(entriesList.size());
+
+        for (String[] entry : entriesList) {
+            result.add(new Message(Long.parseLong(entry[0]), entry[1]));
+        }
+
+        return result;
+    }
+
+    @Override
+    public void post(UserId userId, Message msg) {
+        dbReader.put("" + userId.getUserId(), "" + msg.getTime(), msg.getMsg());
+    }
+
+}
+
+Config.java
+
+package main;
+
+public class Config {
+
+    public static Application getApplication() {
+        return new Application(new ThirdPartyNewsFeedReader());
+    }
+}
+
+
+NewsFeedReader (turn it into an interface)
+
+package main;
+
+import java.util.List;
+
+public interface NewsFeedReader {
+
+    List<Message> getNewsFeed(UserId userId);
+
+    void post(UserId userId, Message msg);
+
+}
+
+
 --------x---------
+
+Test code
+---------
+
+NewsFeedAcceptanceTest.java
+
+.
+.
+.
+
+@Test
+    public void returnsAllPostedMessages() {
+        Message msg1 = new Message(15, "msg1");
+        Message msg2 = new Message(30, "msg2");
+        Message msg3 = new Message(45, "msg3");
+        Message msg4 = new Message(60, "msg4");
+        Message msg5 = new Message(75, "msg5");
+
+        application.post(userId, msg1);
+        application.post(userId, msg2);
+        application.post(userId, msg3);
+        application.post(userId, msg4);
+        application.post(userId, msg5);
+
+        List<Message> newsFeed = application.getNewsFeed(userId);
+
+        assertThat(newsFeed, is(sameBeanAs(Arrays.asList(msg1, msg2, msg3, msg4, msg5))));
+    }
+.
+.
+.
+}
+
+--------x---------
+
+Test code
+---------
+
+SortingNewsFeedReaderTest.java
+
+package main;
+
+import com.shazam.shazamcrest.MatcherAssert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static com.shazam.shazamcrest.MatcherAssert.assertThat;
+import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class SortingNewsFeedReaderTest {
+
+    private static final UserId USER_ID = new UserId(672);
+
+    @Mock private NewsFeedReader delegateNewsFeedReader;
+
+    private NewsFeedReader sortingNewsFeedReader;
+
+    @Before
+    public void setup() {
+        sortingNewsFeedReader = new SortingNewsFeedReader(delegateNewsFeedReader);
+    }
+
+    @Test
+    public void returnsSortedMessagesReturnedByDelegate() {
+        when(delegateNewsFeedReader.getNewsFeed(USER_ID)).thenReturn(
+                Arrays.asList(msg(5), msg(4), msg(6), msg(3), msg(7), msg(2), msg(8))
+        );
+
+        List<Message> newsFeed = sortingNewsFeedReader.getNewsFeed(USER_ID);
+
+        assertThat(newsFeed, is(sameBeanAs(
+                Arrays.asList(msg(2), msg(3), msg(4), msg(5), msg(6), msg(7), msg(8))
+        )));
+    }
+
+    @Test
+    public void delegatesPost() {
+        Message message = new Message(12345, "3");
+
+        sortingNewsFeedReader.post(USER_ID, message);
+
+        verify(delegateNewsFeedReader, times(1)).post(USER_ID, message);
+    }
+
+    private static Message msg(int time) {
+        return new Message(time, "" + time);
+    }
+
+}
+
+
+Implementation code
+-------------------
+
+SortingNewsFeedReader.java
+
+package main;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class SortingNewsFeedReader implements NewsFeedReader {
+
+    private final NewsFeedReader delegateNewsFeedReader;
+
+    public SortingNewsFeedReader(NewsFeedReader delegateNewsFeedReader) {
+        this.delegateNewsFeedReader = delegateNewsFeedReader;
+    }
+
+    @Override
+    public List<Message> getNewsFeed(UserId userId) {
+        List<Message> newsFeed = delegateNewsFeedReader.getNewsFeed(userId);
+        Collections.sort(newsFeed, new Comparator<Message>() {
+            @Override
+            public int compare(Message msg1, Message msg2) {
+                return msg1.getTime() > msg2.getTime() ? 1 : msg1.getTime() < msg2.getTime() ? -1 : 0;
+            }
+        });
+        return newsFeed;
+    }
+
+    @Override
+    public void post(UserId userId, Message msg) {
+        delegateNewsFeedReader.post(userId, msg);
+    }
+
+}
+
+
+Config.java
+
+package main;
+
+public class Config {
+
+    public static Application getApplication() {
+        return new Application(new SortingNewsFeedReader(new ThirdPartyNewsFeedReader()));
+    }
+}
+
+----------x----------
+
+Move NewsFeedTest.java to test-acceptance/java/main/....
+
+Move ThirdPartyNewsFeedReaderTest.java to test-integration/java/main/....
+
+----------x----------
+
+
+Test code
+---------
+
+NewsFeedTest.java
+
+    @Test
+    public void returnsLastFivePostedMessages() {
+        Message msg1 = new Message(10, "msg1");
+        Message msg2 = new Message(20, "msg2");
+        Message msg3 = new Message(30, "msg3");
+        Message msg4 = new Message(40, "msg4");
+        Message msg5 = new Message(50, "msg5");
+        Message msg6 = new Message(60, "msg6");
+        Message msg7 = new Message(70, "msg7");
+
+        application.post(userId, msg1);
+        application.post(userId, msg2);
+        application.post(userId, msg3);
+        application.post(userId, msg4);
+        application.post(userId, msg5);
+        application.post(userId, msg6);
+        application.post(userId, msg7);
+
+        List<Message> newsFeed = application.getNewsFeed(userId, 5);
+
+        assertThat(newsFeed, is(sameBeanAs(Arrays.asList(msg3, msg4, msg5, msg6, msg7))));
+    }
+
+
+Implementation code
+-------------------
+
+Application.java
+
+.
+.
+.
+public class Application {
+.
+.
+.
+    public List<Message> getNewsFeed(UserId userId, int size) {
+        Message msg3 = new Message(30, "msg3");
+        Message msg4 = new Message(40, "msg4");
+        Message msg5 = new Message(50, "msg5");
+        Message msg6 = new Message(60, "msg6");
+        Message msg7 = new Message(70, "msg7");
+
+        return Arrays.asList(msg3, msg4, msg5, msg6, msg7);
+    }
+}
+
+----------x----------
+
+Test code
+---------
+ApplicationTest.java
+
+public class ApplicationTest {
+.
+.
+.
+    @Before
+    public void setup() {
+        application = new Application(newsFeedReader, newsFeedReducer);
+    }
+.
+.
+.
+   @Test
+    public void delegatesSizedGetQuery() {
+        List<Message> expectedNewsFeed = Arrays.asList(new Message(2, "2"));
+        List<Message> entireNewFeed = Arrays.asList(new Message(1, "1"), new Message(2, "2"));
+
+        when(newsFeedReader.getNewsFeed(USER_ID)).thenReturn(entireNewFeed);
+        when(newsFeedReducer.reduce(entireNewFeed, 1)).thenReturn(expectedNewsFeed);
+
+        List<Message> actualNewsFeed = application.getNewsFeed(USER_ID, 1);
+
+        assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+}
+
+
+Implementation code
+-------------------
+
+Application.java
+
+public class Application {
+.
+.
+.
+    private final NewsFeedReducer newsFeedReducer;
+
+    public Application(NewsFeedReader newsFeedReader, NewsFeedReducer newsFeedReducer) {
+        this.newsFeedReader = newsFeedReader;
+        this.newsFeedReducer = newsFeedReducer;
+    }
+.
+.
+.
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    public List<Message> getNewsFeed(UserId userId, int size) {
+        List<Message> entireNewsFeed = newsFeedReader.getNewsFeed(userId);
+
+        List<Message> reducedNewsFeed = newsFeedReducer.reduce(entireNewsFeed, size);
+
+        return reducedNewsFeed;
+    }
+}
+
+
+Config.java
+
+package main;
+
+public class Config {
+
+    public static Application getApplication() {
+        return new Application(new SortingNewsFeedReader(new ThirdPartyNewsFeedReader()), new NewsFeedReducer());
+    }
+}
+
+
+NewsFeedReducer.java
+
+package main;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class NewsFeedReducer {
+
+    public List<Message> reduce(List<Message> newsFeed, int size) {
+        Message msg3 = new Message(30, "msg3");
+        Message msg4 = new Message(40, "msg4");
+        Message msg5 = new Message(50, "msg5");
+        Message msg6 = new Message(60, "msg6");
+        Message msg7 = new Message(70, "msg7");
+
+        return Arrays.asList(msg3, msg4, msg5, msg6, msg7);
+    }
+
+}
 
