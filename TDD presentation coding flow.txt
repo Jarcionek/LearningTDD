@@ -1,0 +1,512 @@
+Test code
+---------
+
+src/test/java/main/NewsFeedAcceptanceTest.java
+
+package main;
+
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static com.shazam.shazamcrest.MatcherAssert.assertThat;
+import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
+import static org.hamcrest.CoreMatchers.is;
+
+public class NewsFeedAcceptanceTest {
+
+    private static final int TIME_1 = 15;
+    private static final int TIME_2 = 30;
+
+    private final UserId userId = new UserId(12345);
+
+    private final Application application = Config.getApplication();
+
+    @Test
+    public void returnsAllPostedMessages() {
+        application.post(userId, new Message(TIME_1, "msg1"));
+        application.post(userId, new Message(TIME_2, "msg2"));
+
+        List<Message> newsFeed = application.getNewsFeed(userId);
+
+        assertThat(newsFeed, is(sameBeanAs(Arrays.asList(
+                new Message(TIME_1, "msg1"),
+                new Message(TIME_2, "msg2")))));
+    }
+
+}
+
+
+Implementation code
+--------------------
+
+
+Application.java
+
+package main;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class Application {
+
+    public void post(UserId userId, Message msg) {
+
+    }
+
+    public List<Message> getNewsFeed(UserId userId) {
+        return Arrays.asList(new Message(15, "msg1"), new Message(30, "msg2"));
+    }
+}
+
+Config.java
+
+package main;
+
+public class Config {
+
+    public static Application getApplication() {
+        return new Application();
+    }
+}
+
+
+Message.Java
+
+package main;
+
+public class Message {
+
+    private final long time;
+    private final String msg;
+
+    public Message(long time, String msg) {
+
+        this.time = time;
+        this.msg = msg;
+    }
+}
+
+
+package main;
+
+public class UserId {
+
+    public UserId(int id) {
+
+    }
+}
+
+
+---------x------------
+
+Test code
+---------
+
+ApplicationTest.java
+
+package main;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static com.shazam.shazamcrest.MatcherAssert.assertThat;
+import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
+import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.when;
+
+@RunWith(MockitoJUnitRunner.class)
+public class ApplicationTest {
+
+    private static final int ANY_TIME = 10;
+    private static final UserId ANY_USER_ID = new UserId(5);
+
+    @Mock private NewsFeedReader newsFeedReader;
+
+    private Application application;
+
+    @Before
+    public void setup() {
+        application = new Application(newsFeedReader);
+    }
+
+    @Test
+    public void delegatesQueryToNewsFeedReader() {
+        List<Message> expectedNewsFeed = Arrays.asList(new Message(ANY_TIME, "any message"));
+
+        when(newsFeedReader.getNewsFeed(ANY_USER_ID)).thenReturn(expectedNewsFeed);
+
+        List<Message> actualNewsFeed = application.getNewsFeed(ANY_USER_ID);
+
+        assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+}
+
+
+Implementation code
+-------------------
+
+NewsFeedReader.java
+
+package main;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class NewsFeedReader {
+
+    public List<Message> getNewsFeed(UserId userId) {
+        return Arrays.asList(new Message(15, "msg1"), new Message(30, "msg2"));
+    }
+
+}
+
+
+Application.java
+
+package main;
+
+import java.util.List;
+
+public class Application {
+
+    private NewsFeedReader newsFeedReader;
+
+    public Application(NewsFeedReader newsFeedReader) {
+        this.newsFeedReader = newsFeedReader;
+    }
+
+    public void post(UserId userId, Message msg) {
+
+    }
+
+    public List<Message> getNewsFeed(UserId userId) {
+        return newsFeedReader.getNewsFeed(userId);
+    }
+}
+
+
+Config.java
+
+package main;
+
+public class Config {
+
+    public static Application getApplication() {
+        return new Application(new NewsFeedReader());
+    }
+}
+
+----------x---------
+
+InMemoryDbReader.java
+
+public class InMemoryDbReader implements DbReader {
+.
+.
+.
+    @Override
+    public List<String[]> get(String key) {
+        List<String[]> result = new ArrayList<String[]>();
+        if (DATA.containsKey(key)) {
+            for (String[] data : DATA.get(key)) {
+                insertAtRandomPosition(result, copyOf(data));
+            }
+        }
+        return result;
+    }
+.
+.
+.
+}
+
+----------x---------
+
+Test code
+---------
+
+NewsFeedReaderIntegrationTest.java
+
+package main;
+
+import org.hamcrest.Matchers;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.shazam.shazamcrest.MatcherAssert.assertThat;
+import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+
+public class NewsFeedReaderIntegrationTest {
+
+    private UserId userId1 = new UserId(1001);
+    private UserId userId2 = new UserId(1002);
+
+    private NewsFeedReader newsFeedReader = new NewsFeedReader();
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void persistsNewsFeedIntoDb() {
+        Message msg1 = new Message(7, "user 1, message 1");
+        Message msg2 = new Message(8, "user 2, message 1");
+        Message msg3 = new Message(8, "user 2, message 2");
+
+        newsFeedReader.post(userId1, msg1);
+        newsFeedReader.post(userId2, msg2);
+        newsFeedReader.post(userId2, msg3);
+
+        assertThat(newsFeedReader.getNewsFeed(userId1), is(sameBeanAs(asList(msg1))));
+        assertThat(newsFeedReader.getNewsFeed(userId2), containsInAnyOrder(sameBeanAs(msg2), sameBeanAs(msg3)));
+    }
+
+}
+
+
+ApplicationTest.java
+.
+.
+.
+    private static final UserId USER_ID = new UserId(5);
+    private static final Message MESSAGE = new Message(10, "any message");
+.
+.
+.
+    @Test
+    public void delegatesGetQueryToNewsFeedReader() {
+        List<Message> expectedNewsFeed = Arrays.asList(MESSAGE);
+
+        when(newsFeedReader.getNewsFeed(USER_ID)).thenReturn(expectedNewsFeed);
+
+        List<Message> actualNewsFeed = application.getNewsFeed(USER_ID);
+
+        assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+.
+.
+.
+}
+
+
+Implementation code
+-------------------
+
+Message.java
+
+public class Message {
+
+.
+.
+.
+    public long getTime() {
+        return time;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+}
+
+
+Application.java
+public class Application {
+.
+.
+.
+    private final NewsFeedReader newsFeedReader;
+.
+.
+.
+    public void post(UserId userId, Message msg) {
+        newsFeedReader.post(userId, msg);
+    }
+.
+.
+.
+}
+
+
+NewsfeedReader.java
+
+.
+.
+.
+public class NewsFeedReader {
+
+    private final DbReader dbReader = new InMemoryDbReader();
+
+    public List<Message> getNewsFeed(UserId userId) {
+        List<String[]> entriesList = dbReader.get("" + userId.getUserId());
+
+        List<Message> result = new ArrayList<Message>(entriesList.size());
+
+        for (String[] entry : entriesList) {
+            result.add(new Message(Long.parseLong(entry[0]), entry[1]));
+        }
+
+        return result;
+    }
+
+    public void post(UserId userId, Message msg) {
+        dbReader.put("" + userId.getUserId(), "" + msg.getTime(), msg.getMsg());
+    }
+}
+
+
+UserId.java
+
+package main;
+
+public class UserId {
+
+    private final int id;
+
+    public UserId(int id) {
+        this.id = id;
+    }
+
+    public int getUserId() {
+        return id;
+    }
+
+}
+
+--------x---------
+
+Test code
+---------
+
+NewsFeedReaderIntegrationTest.java
+
+package main;
+
+import org.hamcrest.Matchers;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static com.shazam.shazamcrest.MatcherAssert.assertThat;
+import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
+import static java.util.Arrays.asList;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+
+public class NewsFeedReaderIntegrationTest {
+
+    private UserId userId1 = new UserId(1001);
+    private UserId userId2 = new UserId(1002);
+
+    private NewsFeedReader newsFeedReader = new NewsFeedReader();
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void persistsNewsFeedIntoDb() {
+        Message msg1 = new Message(7, "user 1, message 1");
+        Message msg2 = new Message(8, "user 2, message 1");
+        Message msg3 = new Message(8, "user 2, message 2");
+
+        newsFeedReader.post(userId1, msg1);
+        newsFeedReader.post(userId2, msg2);
+        newsFeedReader.post(userId2, msg3);
+
+        assertThat(newsFeedReader.getNewsFeed(userId1), is(sameBeanAs(asList(msg1))));
+        assertThat(newsFeedReader.getNewsFeed(userId2), containsInAnyOrder(sameBeanAs(msg2), sameBeanAs(msg3)));
+    }
+
+}
+
+
+ApplicationTest.java
+.
+.
+.
+public class ApplicationTest {
+
+    private static final UserId USER_ID = new UserId(5);
+    private static final Message MESSAGE = new Message(10, "any message");
+.
+.
+.
+    @Test
+    public void delegatesGetQueryToNewsFeedReader() {
+        List<Message> expectedNewsFeed = Arrays.asList(MESSAGE);
+
+        when(newsFeedReader.getNewsFeed(USER_ID)).thenReturn(expectedNewsFeed);
+
+        List<Message> actualNewsFeed = application.getNewsFeed(USER_ID);
+
+        assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+    @Test
+    public void delegatesPostQueryToNewsFeedReader() {
+        application.post(USER_ID, MESSAGE);
+
+        verify(newsFeedReader, times(1)).post(USER_ID, MESSAGE);
+    }
+
+}
+
+Implementation code
+-------------------
+
+public class Application {
+    private final NewsFeedReader newsFeedReader;
+.
+.
+.
+    public void post(UserId userId, Message msg) {
+        newsFeedReader.post(userId, msg);
+    }
+.
+.
+.
+}
+
+
+--------x---------
+
+NewsFeedAcceptanceTest.java
+.
+.
+.
+    @Test
+    public void returnsAllPostedMessages() {
+        Message msg1 = new Message(15, "msg1");
+        Message msg2 = new Message(30, "msg2");
+        Message msg3 = new Message(45, "msg3");
+        Message msg4 = new Message(60, "msg4");
+        Message msg5 = new Message(75, "msg5");
+
+        application.post(userId, msg1);
+        application.post(userId, msg2);
+        application.post(userId, msg3);
+        application.post(userId, msg4);
+        application.post(userId, msg5);
+
+        List<Message> newsFeed = application.getNewsFeed(userId);
+
+        assertThat(newsFeed, is(sameBeanAs(Arrays.asList(msg1, msg2, msg3, msg4, msg5))));
+    }
+.
+.
+.
+}
+
+--------x---------
+
+Rename NewsFeedReaderIntegrationTest to ThirdPartyNewsFeedReaderIntegrationTest
+
+--------x---------
+
