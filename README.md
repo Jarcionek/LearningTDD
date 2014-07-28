@@ -6,8 +6,6 @@ Users, identified by a number, have a news feed visible in their mobile applicat
 
 For news feed persistance, third party's database will be used - all we know about it is ```thirdparty.DbReader``` interface with it's javadoc and we know that we can instantiate it by ```new thirdparty.PersistentDbReader()```. You should not be looking at this implementation - in real system you would probably not have its source.
 
-<em>// TODO maybe we should really persist the messages, e.g. to local file system? This would give interesting results when running tests multiple times and would require doing some clean up in the "before" methods. As a disadvantage, this would require to use "delete" method (more code to write) or do some hacks like random user id.</em>
-
 For the simplicity of the task, we won't be creating RESTful endpoints but will focus on pure Java. In real system, we would also have endpoints calling the created API and serialising the responses to xml or json, all deployed in a web container. Also in this task parameters can be POJOs rather then single URL. So the method for adding message to the news feed can have a signature ```void post(int userId, long timestamp, String message)``` or ```void post(UserId userId, Message message)``` - it is entirely up to you.
 
 ### Task 1 - retrieve news feed
