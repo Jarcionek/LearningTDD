@@ -4,7 +4,7 @@ The main task of this exercise is to implement a simple news feed system using p
 
 Users, identified by a number, have a news feed visible in their mobile application. The news feed is user specific, every news feed may contain different messages. Messages are just text. The users see most recent messages on top of their news feed (similarly to Facebook's wall). The task is to implemented a server back-end, that mobile application will be calling to retrieve users' news feed. Also, another internal application is used by marketing department to add messages to the news feed. Marketing department has also requested to be able to add a message to the news feed at any time in the past or future.
 
-For news feed persistance, third party's database will be used - all we know about it is ```thirdparty.DbReader``` interface with it's javadoc and we know that we can instantiate it by ```new thirdparty.InMemoryDbReader()```. You should not be looking at this implementation - in real system you would probably not have its source.
+For news feed persistance, third party's database will be used - all we know about it is ```thirdparty.DbReader``` interface with it's javadoc and we know that we can instantiate it by ```new thirdparty.PersistentDbReader()```. You should not be looking at this implementation - in real system you would probably not have its source.
 
 <em>// TODO maybe we should really persist the messages, e.g. to local file system? This would give interesting results when running tests multiple times and would require doing some clean up in the "before" methods. As a disadvantage, this would require to use "delete" method (more code to write) or do some hacks like random user id.</em>
 
@@ -20,4 +20,5 @@ Over time, users' news feed becomes much larger than displayed by the mobile app
 
 ### Task 3 - add pagination
 
-When users scroll down the news feed, at some point it is necessary to request more messages from the news feed, however existing methods will return also those messages that are already cached by the mobile application, hence wasting bandwith and memory. We should add another method that will return a page of messages, given the page number and page size. For example, if entire news feed is [A, B, C, D, E, F, G], with G being the most recent message, the query of page 1 and page size 2 should return page [D, E].
+When users scroll down the news feed, at some point it is necessary to request more messages from the news feed, however existing methods will return also those messages that are already cached by the mobile application, hence wasting bandwith and memory. We should add another method that will return a page of messages, given the page number and page size. For example, if entire news feed is [A, B, C, D, E, F, G], with G being the most recent message, the query of page 1 and page size 2 should return page [D, E]. Page numbers are 0 based so page 0 would be [F, G].
+
