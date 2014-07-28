@@ -884,3 +884,573 @@ public class NewsFeedReducer {
 
 }
 
+
+--------- x -----------
+
+Test code
+---------
+NewsFeedReducerTest.java
+
+package main;
+
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static com.shazam.shazamcrest.MatcherAssert.assertThat;
+import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
+import static org.hamcrest.CoreMatchers.is;
+
+public class NewsFeedReducerTest {
+
+    private final NewsFeedReducer newsFeedReducer = new NewsFeedReducer();
+
+    @Test
+    public void reducesMessagesInNewsFeed() {
+        List<Message> entireNewsFeed = Arrays.asList(msg(1), msg(2), msg(4), msg(3));
+        List<Message> expectedNewsFeed= Arrays.asList(msg(2), msg(4), msg(3));
+
+        List<Message> reducedNewsFeed = newsFeedReducer.reduce(entireNewsFeed, 3);
+
+        assertThat(reducedNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+
+    private static Message msg(int time) {
+        return new Message(time, "" + time);
+    }
+
+}
+
+
+NewsFeedTest.java
+.
+.
+.
+public class NewsFeedTest {
+
+    @Test
+    public void returnsAllPostedMessages() {
+        final UserId userId = new UserId(5001);
+.
+.
+.
+}
+
+Implementation code
+-------------------
+
+package main;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class NewsFeedReducer {
+
+    public List<Message> reduce(List<Message> newsFeed, int size) {
+        List<Message> reducedNewsFeed = new ArrayList<Message>(size);
+
+        for (int i = newsFeed.size() - size; i < newsFeed.size(); i++) {
+            reducedNewsFeed.add(newsFeed.get(i));
+        }
+
+        return reducedNewsFeed;
+    }
+
+}
+
+
+----------x----------
+
+Test code
+---------
+
+ApplicationTest.java
+
+public class ApplicationTest {
+.
+.
+.
+    @Test
+    public void delegatesSizedGetQuery() {
+        List<Message> expectedNewsFeed = Arrays.asList(msg(2));
+        List<Message> entireNewFeed = Arrays.asList(msg(1), msg(2));
+.
+.
+.
+    }
+
+
+    private static Message msg(int time) {
+        return new Message(time, "" + time);
+    }
+}
+
+----------x----------
+
+Test code
+---------
+
+ApplicationTest.java
+
+public class ApplicationTest {
+.
+.
+.
+    @Mock private NewsFeedPaginator newsFeedPaginator;
+
+    private Application application;
+
+    @Before
+    public void setup() {
+        application = new Application(newsFeedReader, newsFeedReducer, newsFeedPaginator);
+    }
+.
+.
+.
+    @Test
+    public void delegatesSizedGetQuery() {
+        List<Message> expectedNewsFeed = Arrays.asList(msg(2));
+        List<Message> entireNewsFeed = Arrays.asList(msg(1), msg(2));
+
+        when(newsFeedReader.getNewsFeed(USER_ID)).thenReturn(entireNewsFeed);
+        when(newsFeedReducer.reduce(entireNewsFeed, 1)).thenReturn(expectedNewsFeed);
+
+        List<Message> actualNewsFeed = application.getNewsFeed(USER_ID, 1);
+
+        assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+    @Test
+    public void delegatesPaginatedSizedGetQuery() {
+        List<Message> expectedNewsFeed = Arrays.asList(msg(2), msg(3));
+        List<Message> entireNewsFeed = Arrays.asList(msg(1), msg(2), msg(3), msg(4), msg(5));
+
+        when(newsFeedReader.getNewsFeed(USER_ID)).thenReturn(entireNewsFeed);
+        when(newsFeedPaginator.paginate(entireNewsFeed, 1, 2)).thenReturn(expectedNewsFeed);
+
+        List<Message> actualNewsFeed = application.getNewsFeed(USER_ID, 1, 2);
+
+        assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+.
+.
+.
+}
+
+Implementation code
+-------------------
+
+NewsFeedPaginator.java
+
+package main;
+
+import java.util.Arrays;
+import java.util.List;
+
+public class NewsFeedPaginator {
+
+    public List<Message> paginate(List<Message> newsFeed, int pageNumber, int pageSize) {
+        return Arrays.asList(new Message(4, "msg+4"));
+    }
+
+}
+
+
+Config.java
+package main;
+
+public class Config {
+
+    public static Application getApplication() {
+        return new Application(new SortingNewsFeedReader(new ThirdPartyNewsFeedReader()), new NewsFeedReducer(), new NewsFeedPaginator());
+    }
+}
+
+
+Application.java
+
+public class Application {
+.
+.
+.
+    private final NewsFeedPaginator newsFeedPaginator;
+
+    public Application(NewsFeedReader newsFeedReader, NewsFeedReducer newsFeedReducer, NewsFeedPaginator newsFeedPaginator) {
+        this.newsFeedReader = newsFeedReader;
+        this.newsFeedReducer = newsFeedReducer;
+        this.newsFeedPaginator = newsFeedPaginator;
+    }
+
+.
+.
+.
+    @SuppressWarnings("UnnecessaryLocalVariable")
+    public List<Message> getNewsFeed(UserId userId, int pageNumber, int pageSize) {
+        List<Message> entireNewsFeed = newsFeedReader.getNewsFeed(userId);
+
+        List<Message> paginatedNewsFeed = newsFeedPaginator.paginate(entireNewsFeed, pageNumber, pageSize);
+
+        return paginatedNewsFeed;
+    }
+}
+
+
+----------x----------
+
+Test code
+---------
+
+NewsFeedPaginatorTest.java
+
+package main;
+
+import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static com.shazam.shazamcrest.MatcherAssert.assertThat;
+import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
+import static org.hamcrest.CoreMatchers.is;
+
+public class NewsFeedPaginatorTest {
+
+    private final NewsFeedPaginator newsFeedPaginator = new NewsFeedPaginator();
+
+    @Test
+    public void returnsEntireNewsFeedWhenPageSizeGreaterThanNewsFeedSize() {
+        List<Message> entireNewsFeed = Arrays.asList(msg(1), msg(2), msg(3));
+        int pageNumber = 0;
+        int pageSize = 4;
+        List<Message> expectedNewsFeed = Arrays.asList(msg(1), msg(2), msg(3));
+
+        List<Message> paginatedNewsFeed = newsFeedPaginator.paginate(entireNewsFeed, pageNumber, pageSize);
+
+        assertThat(paginatedNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+    @Test
+    public void returnsMostRecentMessagesForPageZeroWhenNewsFeedGreaterThanPageSize() {
+        List<Message> entireNewsFeed = Arrays.asList(msg(1), msg(2), msg(3), msg(4), msg(5));
+        int pageNumber = 0;
+        int pageSize = 2;
+        List<Message> expectedNewsFeed = Arrays.asList(msg(4), msg(5));
+
+        List<Message> paginatedNewsFeed = newsFeedPaginator.paginate(entireNewsFeed, pageNumber, pageSize);
+
+        assertThat(paginatedNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+    @Test
+    public void returnsFullPageTwoWhenThereIsEnoughMessages() {
+        List<Message> entireNewsFeed = Arrays.asList(msg(1), msg(2), msg(3), msg(4), msg(5), msg(6), msg(7));
+        int pageNumber = 2;
+        int pageSize = 2;
+        List<Message> expectedNewsFeed = Arrays.asList(msg(2), msg(3));
+
+        List<Message> paginatedNewsFeed = newsFeedPaginator.paginate(entireNewsFeed, pageNumber, pageSize);
+
+        assertThat(paginatedNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+    @Test
+    public void returnsIncompletePageOneWhenThereIsNotEnoughMessages() {
+        List<Message> entireNewsFeed = Arrays.asList(msg(1), msg(2), msg(3), msg(4), msg(5));
+        int pageNumber = 1;
+        int pageSize = 3;
+        List<Message> expectedNewsFeed = Arrays.asList(msg(1), msg(2));
+
+        List<Message> paginatedNewsFeed = newsFeedPaginator.paginate(entireNewsFeed, pageNumber, pageSize);
+
+        assertThat(paginatedNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+    @Test
+    public void returnsEmptyNewsFeedWhenNotEnoughMessagesForRequestedPage() {
+        List<Message> entireNewsFeed = Arrays.asList(msg(10));
+        int pageNumber = 20;
+        int pageSize = 3;
+        List<Message> expectedNewsFeed = Arrays.asList();
+
+        List<Message> paginatedNewsFeed = newsFeedPaginator.paginate(entireNewsFeed, pageNumber, pageSize);
+
+        assertThat(paginatedNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+
+    private static Message msg(int time) {
+        return new Message(time, "" + time);
+    }
+
+}
+
+
+Implementation code
+-------------------
+
+NewsFeedPaginator.java
+
+package main;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class NewsFeedPaginator {
+
+    public List<Message> paginate(List<Message> newsFeed, int pageNumber, int pageSize) {
+        List<Message> paginatedNewsFeed = new ArrayList<Message>(pageSize);
+
+        for (int i = newsFeed.size() - 1 - pageNumber * pageSize; i >= newsFeed.size() - (pageNumber + 1) * pageSize && i >= 0; i--) {
+            paginatedNewsFeed.add(0, newsFeed.get(i));
+        }
+
+        return paginatedNewsFeed;
+    }
+}
+
+
+----------x----------
+
+Test code
+---------
+public class NewsFeedTest {
+
+    private final NewsFeedEndpoints endpoint = Config.getNewsFeedEndpoints();
+
+    @Test
+    public void returnsAllPostedMessages() {
+.
+.
+.
+        endpoint.post(userId, msg1);
+        endpoint.post(userId, msg2);
+        endpoint.post(userId, msg3);
+        endpoint.post(userId, msg4);
+        endpoint.post(userId, msg5);
+
+        List<Message> newsFeed = endpoint.getNewsFeed(userId);
+
+        assertThat(newsFeed, is(sameBeanAs(Arrays.asList(msg1, msg2, msg3, msg4, msg5))));
+    }
+
+    @Test
+    public void returnsLastFivePostedMessages() {
+.
+.
+.
+        endpoint.post(userId, msg1);
+        endpoint.post(userId, msg2);
+        endpoint.post(userId, msg3);
+        endpoint.post(userId, msg4);
+        endpoint.post(userId, msg5);
+        endpoint.post(userId, msg6);
+        endpoint.post(userId, msg7);
+
+        List<Message> newsFeed = endpoint.getNewsFeed(userId, 5);
+
+        assertThat(newsFeed, is(sameBeanAs(Arrays.asList(msg3, msg4, msg5, msg6, msg7))));
+    }
+
+    @Test
+    public void returnsSecondPageOfPaginatedNewsFeed() {
+.
+.
+.
+        endpoint.post(userId, msg1);
+        endpoint.post(userId, msg2);
+        endpoint.post(userId, msg3);
+        endpoint.post(userId, msg4);
+        endpoint.post(userId, msg5);
+        endpoint.post(userId, msg6);
+        endpoint.post(userId, msg7);
+
+        List<Message> newsFeed = endpoint.getNewsFeed(userId, 5);
+
+        assertThat(newsFeed, is(sameBeanAs(Arrays.asList(msg3, msg4, msg5, msg6, msg7))));
+    }
+
+
+Implementation code
+-------------------
+
+NewsFeedEndpoints.java
+
+package main;
+
+import java.util.List;
+
+public interface NewsFeedEndpoints {
+
+    void post(UserId userId, Message msg);
+
+    List<Message> getNewsFeed(UserId userId);
+
+    List<Message> getNewsFeed(UserId userId, int size);
+
+    List<Message> getNewsFeed(UserId userId, int pageNumber, int pageSize);
+
+}
+
+
+Config.java
+
+package main;
+
+public class Config {
+
+    public static NewsFeedEndpoints getNewsFeedEndpoints() {
+        return new Application(new SortingNewsFeedReader(new ThirdPartyNewsFeedReader()), new NewsFeedReducer(), new NewsFeedPaginator());
+    }
+
+}
+
+Application.java
+
+public class Application implements NewsFeedEndpoints {
+
+@Override - on a number of implementation methods
+
+
+---------x----------
+
+Test code
+---------
+
+PersistentDbReaderTest.java 
+
+package thirdparty;
+
+import org.junit.Test;
+
+public class PersistentDbReaderTest {
+
+    private PersistentDbReader persistentDbReader = new PersistentDbReader();
+
+    @Test
+    public void test() {
+        System.out.println(persistentDbReader.get("x"));
+
+        System.out.println("putting x->abc");
+        persistentDbReader.put("x", "abc");
+
+        System.out.println(persistentDbReader.get("x"));
+    }
+
+}
+
+
+Implementation code
+-------------------
+
+PersistentDbReader.java
+
+package thirdparty;
+
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+
+@SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
+public class PersistentDbReader implements DbReader {
+
+    private static final Logger LOG = Logger.getAnonymousLogger();
+    private static final File FILE = new File(System.getProperty("user.dir"), "news-feed-db.ser");
+    private static final File README_FILE = new File(System.getProperty("user.dir"), "news-feed-db-readme.txt");
+
+    private static final InMemoryDbReader inMemoryDbReader = new InMemoryDbReader();
+
+    static {
+        if (!FILE.exists()) {
+            try {
+                LOG.info("Creating db file: " + FILE);
+                FILE.createNewFile();
+                LOG.info("Creating readme file: " + README_FILE);
+                README_FILE.createNewFile();
+                BufferedWriter bw = new BufferedWriter(new FileWriter(README_FILE));
+                bw.write("Users' news feed created by LearningTDD exercise. Safe to delete.");
+                bw.close();
+            } catch (IOException e) {
+                LOG.severe("Could not create db file");
+                throw new RuntimeException(e);
+            }
+        } else {
+            LOG.info("loading from existing db file: " + FILE);
+            try {
+                FileInputStream fis = new FileInputStream(FILE);
+                ObjectInputStream ois = new ObjectInputStream(fis);
+                inMemoryDbReader.setData((Map<String, List<String[]>>) ois.readObject());
+                ois.close();
+                fis.close();
+            } catch(Exception exception) {
+                LOG.severe("Could not load db file");
+                throw new RuntimeException(exception);
+            }
+        }
+    }
+
+
+    @Override
+    public void put(String key, String... data) {
+        inMemoryDbReader.put(key, data);
+        save();
+    }
+
+    @Override
+    public void delete(String key) {
+        inMemoryDbReader.delete(key);
+        save();
+    }
+
+    @Override
+    public List<String[]> get(String key) {
+        return inMemoryDbReader.get(key);
+    }
+
+    private void save() {
+        try {
+            FileOutputStream fos = new FileOutputStream(FILE);
+            ObjectOutputStream oos = new ObjectOutputStream(fos);
+            oos.writeObject(inMemoryDbReader.getData());
+            oos.close();
+            fos.close();
+        } catch(IOException exception) {
+            LOG.severe("Could not save to db file");
+            throw new RuntimeException(exception);
+        }
+    }
+
+}
+
+
+InMemoryDbReader.java
+
+public class InMemoryDbReader implements DbReader {
+
+    private static Map<String, List<String[]>> data = new HashMap<String, List<String[]>>();
+.
+.
+.
+
+    void setData(Map<String, List<String[]>> data) {
+        InMemoryDbReader.data = data;
+    }
+
+    Map<String, List<String[]>> getData() {
+        return data;
+    }
+.
+.
+.
+}
+
