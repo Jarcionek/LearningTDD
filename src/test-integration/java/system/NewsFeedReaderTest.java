@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 
 public class NewsFeedReaderTest {
@@ -31,7 +32,7 @@ public class NewsFeedReaderTest {
         newsFeedReader.post(userId2, msg3);
 
         assertThat(newsFeedReader.getNewsFeed(userId1), is(sameBeanAs(new NewsFeed(msg1))));
-        assertThat(newsFeedReader.getNewsFeed(userId2), is(sameBeanAs(new NewsFeed(msg2, msg3))));
+        assertThat(newsFeedReader.getNewsFeed(userId2), is(anyOf(sameBeanAs(new NewsFeed(msg2, msg3)), sameBeanAs(new NewsFeed(msg3, msg2)))));
     }
 
 }
