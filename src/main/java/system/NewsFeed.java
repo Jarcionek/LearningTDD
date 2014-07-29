@@ -12,4 +12,8 @@ public class NewsFeed {
         this.messages = newArrayList(messages);
     }
 
+    public NewsFeed(List<Message> messages) {
+        this.messages = messages;
+    }
+
 }
