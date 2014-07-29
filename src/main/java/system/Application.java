@@ -2,6 +2,10 @@ package system;
 
 public class Application {
 
+    public Application(NewsFeedReader newsFeedReader) {
+
+    }
+
     public void post(UserId userId, Message message) {
 
     }
