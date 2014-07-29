@@ -26,4 +26,8 @@ public class NewsFeedReader {
         dbReader.put("" + userId.getId(), "" + message.getTimestamp(), message.getMessage());
     }
 
+    public void removeAll(UserId userId) {
+        dbReader.delete("" + userId.getId());
+    }
+
 }
