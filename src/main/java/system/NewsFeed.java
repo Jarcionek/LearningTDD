@@ -16,4 +16,8 @@ public class NewsFeed {
         this.messages = messages;
     }
 
+    public List<Message> getMessages() {
+        return messages;
+    }
+
 }
