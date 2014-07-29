@@ -8,12 +8,12 @@ import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
 import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.is;
 
-public class NewsFeedReaderTest {
+public class ThirdPartyNewsFeedReaderTest {
 
     private final UserId userId1 = new UserId(56);
     private final UserId userId2 = new UserId(97);
 
-    private final NewsFeedReader newsFeedReader = new NewsFeedReader();
+    private final ThirdPartyNewsFeedReader newsFeedReader = new ThirdPartyNewsFeedReader();
 
     @After
     public void removePostedMessages() {
