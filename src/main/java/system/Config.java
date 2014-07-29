@@ -7,7 +7,7 @@ public class Config {
     }
 
     public static NewsFeedReader newsFeedReader() {
-        return new ThirdPartyNewsFeedReader();
+        return new SortingNewsFeedReader(new ThirdPartyNewsFeedReader());
     }
 
 }
