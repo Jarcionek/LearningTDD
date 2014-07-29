@@ -9,7 +9,7 @@ public class Application {
     }
 
     public void post(UserId userId, Message message) {
-
+        newsFeedReader.post(userId, message);
     }
 
     public NewsFeed getNewsFeed(UserId userId) {
