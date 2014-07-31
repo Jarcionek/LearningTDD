@@ -7,7 +7,7 @@ public class Config {
     }
 
     public static NewsFeedDbAdapter newsFeedDbAdapter() {
-        return new ThirdPartyNewsFeedDbAdapter();
+        return new SortingNewsFeedDbAdapter(new ThirdPartyNewsFeedDbAdapter());
     }
 
 }

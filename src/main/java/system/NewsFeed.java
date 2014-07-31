@@ -18,4 +18,7 @@ public class NewsFeed {
         this.messages = unmodifiableList(messages);
     }
 
+    public List<Message> getMessages() {
+        return messages;
+    }
 }
