@@ -1,5 +1,6 @@
 package system;
 
+import org.junit.After;
 import org.junit.Test;
 
 import static com.shazam.shazamcrest.MatcherAssert.assertThat;
@@ -10,6 +11,11 @@ public class NewsFeedTest {
 
     private final Application application = Config.application();
     private final UserId userId = new UserId(1234);
+
+    @After
+    public void cleanup() {
+        Config.newsFeedDbAdapter().removeAll(userId);
+    }
 
     @Test
     public void retrievesAllPostedMessages() {
