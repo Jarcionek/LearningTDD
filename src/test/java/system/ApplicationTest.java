@@ -9,6 +9,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,6 +35,15 @@ public class ApplicationTest {
         NewsFeed actualNewsFeed = application.getNewsFeed(userId);
 
         assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+    @Test
+    public void delegatesPostQueryToNewsFeedDbAdapter() {
+        Message message = new Message(32323, "xxx");
+
+        application.post(userId, message);
+
+        verify(newsFeedDbAdapter, times(1)).post(userId, message);
     }
 
 }
