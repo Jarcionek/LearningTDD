@@ -10,4 +10,12 @@ public class Message {
         this.message = message;
     }
 
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
 }
