@@ -43,5 +43,5 @@ When users scroll down the news feed, at some point it is necessary to request m
 - isolate the tests
   - test should not be relying on another test
   - you should be able to run your tests (or any subset of them) in any order
-  - you should be able to run your unit tests in parallel so avoid to mutable static fields
+  - you should be able to run your unit tests in parallel so avoid mutable static fields
   - tests should be cleaning after themselves, otherwise you may find other tests failing and it will be very difficult to find the reason
