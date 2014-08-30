@@ -27,7 +27,7 @@ When users scroll down the news feed, at some point it is necessary to request m
 - write minimal code to satisfy the test
 - write minimal amount of tests which are necessary to fail
   - if you write a new test and it is passing, it means that it may not be needed (however you may still want to test some critical components, e.g. those that affect house edge)
-  - if two tests are always failing together or always passing together, one of them is probably redudant
+  - if two tests are always failing together or always passing together, one of them is probably redundant
 - always see the test fail and for the right reason
   - when writing tests for existing code, never change the test to see it fail, break implementation instead
   - when writing tests for existing code, consider removing all production code and keep adding it back piece by piece, only what is needed for the test to pass
