@@ -1,4 +1,4 @@
-## Branches overview:
+#### Branches overview:
 - master - ready to checkout and start implementing
 - example-solution-step-by-step - a kind of guide how to do this
 - presentation - commits made during 90 minutes live coding presentation I gave in Gamesys
