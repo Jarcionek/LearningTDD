@@ -1,4 +1,5 @@
-LearningTDD
-===========
+This branch contains commits that explain the order in which to implement tests, production code etc. You can use it as a guideline if you have never done TDD before and would like to start.
 
-an exercise to practice TDD
+Please note that commits made here do not reflect the commits that would be made in the real life. E.g. all commits starting with 1 would be part of a single commit that would contain acceptance test with minimal implementation to satisfy it. In ideal world, after every commits the entire test suite is green, however in this case all commits starting with 3 are probably too large to be a single commit in the real life - if we split it into smaller real-life-commits, there will be periods of time when the acceptance test is failing (which is fine because feature is not finished yet).
+
+I have used a "hardcoded response" approach in which I hardcode the expecation in the production code to make the test green and then keep shifting it down the system until everything is implemented and the hardcoded bit is removed. It allows to keep all tests (including acceptance test) green for most of the time, even though the system/feature implementation is not finished yet. This approach has some advantages and disadvantages and may not work well in real life depending on the context of your system, however I have seen it successfully being used in large enterprise systems. The other approach is to just disable acceptance test or ignore the fact that it is failing.
