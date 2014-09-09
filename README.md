@@ -1,6 +1,6 @@
 #### Branches overview:
 - master - ready to checkout and start implementing
-- example-solution-step-by-step - a kind of guide how to do this
+- example-solution-step-by-step - a kind of guide how to do this split into many small commits to show the order
 - presentation - commits made during 90 minutes live coding presentation I gave in Gamesys
 - preparations - just some mess where I was working with Mani Sarkar to prepare this exercise
 
