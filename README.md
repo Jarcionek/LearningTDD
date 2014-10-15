@@ -47,6 +47,7 @@ When users scroll down the news feed, at some point it is necessary to request m
 - maintain your tests - it's not a "second class citizen", it's as important as production code
 - start writing tests from the simplest cases and keep adding more complex cases (triangulation)
 - isolate the tests
+  - test should not be using production code as expectation, the expected values should be harcoded within the test
   - test should not be relying on another test
   - you should be able to run your tests (or any subset of them) in any order
   - you should be able to run your unit tests in parallel so avoid mutable static fields
