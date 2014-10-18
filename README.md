@@ -46,6 +46,7 @@ When users scroll down the news feed, at some point it is necessary to request m
   - maximise clarity (e.g. extract code to methods with meaningful names)
 - maintain your tests - it's not a "second class citizen", it's as important as production code
 - start writing tests from the simplest cases and keep adding more complex cases (triangulation)
+- test behaviour, not implementation
 - isolate the tests
   - test should not be using production code as expectation, the expected values should be hardcoded within the test
   - test should not be relying on another test
