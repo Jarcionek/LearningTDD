@@ -27,7 +27,7 @@ When users scroll down the news feed, at some point it is necessary to request m
 
 ### TDD rules and hints
 
-- *test behaviour, not implementation*
+- **test behaviour, not implementation**
 - don't write production code unless there is a failing test
   - refactoring is fine, but refrain from it if there are no tests (e.g. legacy code) and don't do this if tests are failing
 - write minimal code to satisfy the test
