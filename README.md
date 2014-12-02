@@ -1,8 +1,7 @@
 #### Branches overview:
 - master - ready to checkout and start implementing
 - example-solution-step-by-step - a kind of guide how to do this split into many small commits to show the order
-- presentation - commits made during 90 minutes live coding presentation I gave in Gamesys
-- preparations - just some mess where I was working with Mani Sarkar to prepare this exercise
+- presentation - commits made during 90 minutes live coding presentation I gave at Gamesys
 
 ### Overview
 
@@ -28,6 +27,7 @@ When users scroll down the news feed, at some point it is necessary to request m
 
 ### TDD rules and hints
 
+- *test behaviour, not implementation*
 - don't write production code unless there is a failing test
   - refactoring is fine, but refrain from it if there are no tests (e.g. legacy code) and don't do this if tests are failing
 - write minimal code to satisfy the test
@@ -46,7 +46,6 @@ When users scroll down the news feed, at some point it is necessary to request m
   - maximise clarity (e.g. extract code to methods with meaningful names)
 - maintain your tests - it's not a "second class citizen", it's as important as production code
 - start writing tests from the simplest cases and keep adding more complex cases (triangulation)
-- test behaviour, not implementation
 - isolate the tests
   - test should not be using production code as expectation, the expected values should be hardcoded within the test
   - test should not be relying on another test
