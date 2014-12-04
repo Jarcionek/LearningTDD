@@ -95,4 +95,14 @@ public class NewsFeedAcceptanceTest {
         assertThat(actualNewsFeed, is(sameBeanAs(new NewsFeed())));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsExceptionWhenPageSizeIsNotPositive() {
+        APPLICATION.getNewsFeed(USER_ID_ONE, new PageSize(0), new PageNumber(7));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsExceptionWhenPageNumberIsNegative() {
+        APPLICATION.getNewsFeed(USER_ID_ONE, new PageSize(9), new PageNumber(-1));
+    }
+
 }
