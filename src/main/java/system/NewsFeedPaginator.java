@@ -16,6 +16,9 @@ public class NewsFeedPaginator {
         int toIndex = messages.size() - pageSize.asInt() * pageNumber.asInt();
 
         int fromIndex = toIndex - pageSize.asInt();
+        if (fromIndex < 0) {
+            fromIndex = 0;
+        }
 
         return new NewsFeed(messages.subList(fromIndex, toIndex));
     }

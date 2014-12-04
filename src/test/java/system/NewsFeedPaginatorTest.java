@@ -45,6 +45,16 @@ public class NewsFeedPaginatorTest {
         assertThat(actualNewsFeed, is(sameBeanAs(new NewsFeed(msg(1), msg(2), msg(3)))));
     }
 
+    @Test
+    public void retrievesLastPageOfSmallerSizeThanRequestedWhenThereAreNotEnoughMessages() {
+        when(newsFeedDbAdapter.getNewsFeed(userId))
+                .thenReturn(new NewsFeed(msg(0), msg(1), msg(2), msg(3), msg(4), msg(5)));
+
+        NewsFeed actualNewsFeed = newsFeedPaginator.fetch(userId, new PageSize(4), new PageNumber(1));
+
+        assertThat(actualNewsFeed, is(sameBeanAs(new NewsFeed(msg(0), msg(1)))));
+
+    }
 
     private static Message msg(int timestamp) {
         return new Message(timestamp, "message - " + timestamp);
