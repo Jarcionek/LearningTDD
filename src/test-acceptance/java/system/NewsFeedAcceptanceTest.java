@@ -30,12 +30,7 @@ public class NewsFeedAcceptanceTest {
         Message msg3 = new Message(40, "msg3");
         Message msg4 = new Message(50, "msg4");
         Message msg5 = new Message(60, "msg5");
-
-        APPLICATION.post(USER_ID_ONE, msg1);
-        APPLICATION.post(USER_ID_ONE, msg2);
-        APPLICATION.post(USER_ID_ONE, msg3);
-        APPLICATION.post(USER_ID_ONE, msg4);
-        APPLICATION.post(USER_ID_ONE, msg5);
+        postMessages(USER_ID_ONE, msg5, msg3, msg4, msg2, msg1);
 
         NewsFeed actualNewsFeed = APPLICATION.getNewsFeed(USER_ID_ONE);
 
@@ -51,14 +46,7 @@ public class NewsFeedAcceptanceTest {
         Message e = new Message(5, "e-5");
         Message f = new Message(6, "f-6");
         Message g = new Message(7, "g-7");
-
-        APPLICATION.post(USER_ID_TWO, f);
-        APPLICATION.post(USER_ID_TWO, g);
-        APPLICATION.post(USER_ID_TWO, c);
-        APPLICATION.post(USER_ID_TWO, a);
-        APPLICATION.post(USER_ID_TWO, d);
-        APPLICATION.post(USER_ID_TWO, b);
-        APPLICATION.post(USER_ID_TWO, e);
+        postMessages(USER_ID_TWO, f, g, c, a, d, b, e);
 
         NewsFeed actualNewsFeed = APPLICATION.getNewsFeed(USER_ID_TWO, new PageSize(2), new PageNumber(1));
 
@@ -75,15 +63,7 @@ public class NewsFeedAcceptanceTest {
         Message f = new Message(600, "f-600");
         Message g = new Message(700, "g-700");
         Message h = new Message(800, "h-800");
-
-        APPLICATION.post(USER_ID_THREE, c);
-        APPLICATION.post(USER_ID_THREE, b);
-        APPLICATION.post(USER_ID_THREE, h);
-        APPLICATION.post(USER_ID_THREE, g);
-        APPLICATION.post(USER_ID_THREE, d);
-        APPLICATION.post(USER_ID_THREE, a);
-        APPLICATION.post(USER_ID_THREE, f);
-        APPLICATION.post(USER_ID_THREE, e);
+        postMessages(USER_ID_THREE, c, b, h, g, d, a, f, e);
 
         NewsFeed actualNewsFeed = APPLICATION.getNewsFeed(USER_ID_THREE, new PageSize(3), new PageNumber(2));
 
@@ -109,17 +89,12 @@ public class NewsFeedAcceptanceTest {
 
     @Test
     public void retrievesCappedNewsFeed() {
-        Message msg1 = new Message(20, "msg+1");
-        Message msg2 = new Message(30, "msg+2");
-        Message msg3 = new Message(40, "msg+3");
-        Message msg4 = new Message(50, "msg+4");
-        Message msg5 = new Message(60, "msg+5");
-
-        APPLICATION.post(USER_ID_FOUR, msg3);
-        APPLICATION.post(USER_ID_FOUR, msg1);
-        APPLICATION.post(USER_ID_FOUR, msg5);
-        APPLICATION.post(USER_ID_FOUR, msg2);
-        APPLICATION.post(USER_ID_FOUR, msg4);
+        Message msg1 = new Message(21, "msg+1");
+        Message msg2 = new Message(31, "msg+2");
+        Message msg3 = new Message(41, "msg+3");
+        Message msg4 = new Message(51, "msg+4");
+        Message msg5 = new Message(61, "msg+5");
+        postMessages(USER_ID_FOUR, msg3, msg1, msg5, msg2, msg4);
 
         NewsFeed actualNewsFeed = APPLICATION.getNewsFeed(USER_ID_FOUR, new PageSize(3));
 
@@ -129,6 +104,13 @@ public class NewsFeedAcceptanceTest {
     @Test(expected = IllegalArgumentException.class)
     public void throwsExceptionWhenNumberOfMessagesIsNotPositive() {
         APPLICATION.getNewsFeed(USER_ID_FOUR, new PageSize(0));
+    }
+
+
+    private static void postMessages(UserId userId, Message... messages) {
+        for (Message message : messages) {
+            APPLICATION.post(userId, message);
+        }
     }
 
 }
