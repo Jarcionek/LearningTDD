@@ -1,1 +1,1 @@
-This branch contains commits that I have done during 90 minutes live coding presentation at Gamesys.
+This branch contains commits that I have done during two 90 minutes live coding presentations at Gamesys.
