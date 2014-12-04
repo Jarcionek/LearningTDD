@@ -17,14 +17,17 @@ import static org.mockito.Mockito.when;
 public class ApplicationTest {
 
     @Mock private NewsFeedDbAdapter newsFeedDbAdapter;
+    @Mock private NewsFeedPaginator newsFeedPaginator;
 
-    private UserId userId = new UserId(987);
+    private final UserId userId = new UserId(987);
+    private final PageSize pageSize = new PageSize(7);
+    private final PageNumber pageNumber = new PageNumber(5);
 
     private Application application;
 
     @Before
     public void setup() {
-        application = new Application(newsFeedDbAdapter);
+        application = new Application(newsFeedDbAdapter, newsFeedPaginator);
     }
 
     @Test
@@ -44,6 +47,16 @@ public class ApplicationTest {
         application.post(userId, message);
 
         verify(newsFeedDbAdapter, times(1)).post(userId, message);
+    }
+
+    @Test
+    public void delegatesPaginatedGetQueryToNewsFeedPaginator() {
+        NewsFeed expectedNewsFeed = new NewsFeed(new Message(2, "something"));
+        when(newsFeedPaginator.fetch(userId, pageSize, pageNumber)).thenReturn(expectedNewsFeed);
+
+        NewsFeed actualNewsFeed = application.getNewsFeed(userId, pageSize, pageNumber);
+
+        assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
     }
 
 }

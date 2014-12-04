@@ -3,9 +3,11 @@ package system;
 public class Application {
 
     private final NewsFeedDbAdapter newsFeedDbAdapter;
+    private final NewsFeedPaginator newsFeedPaginator;
 
-    public Application(NewsFeedDbAdapter newsFeedDbAdapter) {
+    public Application(NewsFeedDbAdapter newsFeedDbAdapter, NewsFeedPaginator newsFeedPaginator) {
         this.newsFeedDbAdapter = newsFeedDbAdapter;
+        this.newsFeedPaginator = newsFeedPaginator;
     }
 
     public void post(UserId userId, Message message) {
@@ -17,8 +19,6 @@ public class Application {
     }
 
     public NewsFeed getNewsFeed(UserId userId, PageSize pageSize, PageNumber pageNumber) {
-        Message d = new Message(4, "d-4");
-        Message e = new Message(5, "e-5");
-        return new NewsFeed(d, e);
+        return newsFeedPaginator.fetch(userId, pageSize, pageNumber);
     }
 }
