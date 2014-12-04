@@ -88,4 +88,11 @@ public class NewsFeedAcceptanceTest {
         assertThat(actualNewsFeed, is(sameBeanAs(new NewsFeed(a, b))));
     }
 
+    @Test
+    public void retrievesEmptyPageWhenThereAreNoMessages() {
+        NewsFeed actualNewsFeed = APPLICATION.getNewsFeed(USER_ID_THREE, new PageSize(3), new PageNumber(200));
+
+        assertThat(actualNewsFeed, is(sameBeanAs(new NewsFeed())));
+    }
+
 }

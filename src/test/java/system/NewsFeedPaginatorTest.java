@@ -56,6 +56,16 @@ public class NewsFeedPaginatorTest {
 
     }
 
+    @Test
+    public void returnsEmptyNewsFeedWhenThereAreNoMessagesAvailableAtRequestedPageNumber() {
+        when(newsFeedDbAdapter.getNewsFeed(userId)).thenReturn(new NewsFeed(msg(0), msg(1), msg(2)));
+
+        NewsFeed actualNewsFeed = newsFeedPaginator.fetch(userId, new PageSize(4), new PageNumber(20));
+
+        assertThat(actualNewsFeed, is(sameBeanAs(new NewsFeed())));
+    }
+    
+
     private static Message msg(int timestamp) {
         return new Message(timestamp, "message - " + timestamp);
     }

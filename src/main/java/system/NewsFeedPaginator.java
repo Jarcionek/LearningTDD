@@ -14,6 +14,9 @@ public class NewsFeedPaginator {
         List<Message> messages = newsFeedDbAdapter.getNewsFeed(userId).getMessages();
 
         int toIndex = messages.size() - pageSize.asInt() * pageNumber.asInt();
+        if (toIndex < 0) {
+            toIndex = 0;
+        }
 
         int fromIndex = toIndex - pageSize.asInt();
         if (fromIndex < 0) {
