@@ -7,7 +7,7 @@ import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
 import static org.hamcrest.CoreMatchers.is;
 
-public class NewsFeedTest {
+public class NewsFeedAcceptanceTest {
 
     private final Application application = Config.application();
     private final UserId userId = new UserId(1234);
