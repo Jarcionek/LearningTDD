@@ -126,4 +126,9 @@ public class NewsFeedAcceptanceTest {
         assertThat(actualNewsFeed, is(sameBeanAs(new NewsFeed(msg3, msg4, msg5))));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void throwsExceptionWhenNumberOfMessagesIsNotPositive() {
+        APPLICATION.getNewsFeed(USER_ID_FOUR, new PageSize(0));
+    }
+
 }
