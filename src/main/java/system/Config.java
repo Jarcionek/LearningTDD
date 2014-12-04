@@ -7,7 +7,7 @@ public class Config {
     }
 
     private static NewsFeedPaginator newsFeedPaginator() {
-        return new NewsFeedPaginator();
+        return new NewsFeedPaginator(newsFeedDbAdapter());
     }
 
     public static NewsFeedDbAdapter newsFeedDbAdapter() {
