@@ -29,10 +29,7 @@ public class Application {
     }
 
     public NewsFeed getNewsFeed(UserId userId, PageSize numberOfMessages) {
-        Message msg3 = new Message(40, "msg+3");
-        Message msg4 = new Message(50, "msg+4");
-        Message msg5 = new Message(60, "msg+5");
-        return new NewsFeed(msg3, msg4, msg5);
+        return newsFeedPaginator.fetch(userId, numberOfMessages, new PageNumber(0));
     }
 
 }

@@ -9,6 +9,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static com.shazam.shazamcrest.MatcherAssert.assertThat;
 import static com.shazam.shazamcrest.matcher.Matchers.sameBeanAs;
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -57,6 +58,20 @@ public class ApplicationTest {
         NewsFeed actualNewsFeed = application.getNewsFeed(userId, pageSize, pageNumber);
 
         assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+    @Test
+    public void delegatesCappedGetQueryToNewsPaginatorWithPageNumberEqualZero() {
+        NewsFeed expectedNewsFeed = new NewsFeed(new Message(3, "everything"));
+        when(newsFeedPaginator.fetch(same(userId), same(pageSize), same(new PageNumber(0)))).thenReturn(expectedNewsFeed);
+
+        NewsFeed actualNewsFeed = application.getNewsFeed(userId, pageSize);
+
+        assertThat(actualNewsFeed, is(sameBeanAs(expectedNewsFeed)));
+    }
+
+    private static <T> T same(T expected) {
+        return argThat(sameBeanAs(expected));
     }
 
 }
