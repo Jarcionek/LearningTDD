@@ -32,7 +32,7 @@ When users scroll down the news feed, at some point it is necessary to request m
   - refactoring is fine, but refrain from it if there are no tests (e.g. legacy code) and don't do this if tests are failing
 - write minimal code to satisfy the test
 - write minimal amount of tests which are necessary to fail
-  - if you write a new test and it is passing, it means that it may not be needed (however you may still want to test some critical components, e.g. those that affect house edge)
+  - if you write a new test and it is passing, it means that it may not be needed (however you may still want to test some critical components, e.g. those that affect house edge in a gambling game)
   - if two tests are always failing together or always passing together, one of them is probably redundant
 - always see the test fail and for the right reason
   - when writing tests for existing code, never change the test to see it fail, break implementation instead
