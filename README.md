@@ -37,6 +37,9 @@ When users scroll down the news feed, at some point it is necessary to request m
 - always see the test fail and for the right reason
   - when writing tests for existing code, never change the test to see it fail, break implementation instead
   - when writing tests for existing code, consider removing all production code and keep adding it back piece by piece, only what is needed for the test to pass
+- ensure that diagnostics of a failing test are good
+  - the error message should be showing what were actual and expected values or in case of interactions with mocks - what were actual and expected calls
+  - it should be possible to fix the implementation with just looking at the error message, with no need to look at the code of failing test
 - give a test a meaningful name, describe what it does (e.g. ```retrievesAllPostedMessages``` rather than ```testGet```)
 - test should test only one thing - one logical assertion
   - it's worth to have only one assertion statement as it usually gives better diagnostics
